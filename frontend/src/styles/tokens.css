@@ -1,0 +1,35 @@
+:root {
+  /* Surface and structural colors */
+  --bg-void: #070B14;
+  --bg-console: #0D1424;
+  --bg-raised: #121C31;
+  --edge: #223152;
+
+  /* Typography & Ink */
+  --ink: #E8EEF9;
+  --ink-soft: #A3B1C8;
+  --ink-faint: #6B7C99;
+
+  /* Accent & Action */
+  --scan: #22D3EE;
+  --on-accent: #04121A;
+
+  /* Forensic State Colors */
+  --verified: #34D399;
+  --recovered: #A78BFA;
+  --estimated: #FBBF24;
+  --gap: #FB7185;
+  --lead: #60A5FA;
+
+  /* Radius tokens */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  /* Motion timing */
+  --dur-fast: 120ms;
+  --dur-base: 240ms;
+  --dur-slow: 480ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}

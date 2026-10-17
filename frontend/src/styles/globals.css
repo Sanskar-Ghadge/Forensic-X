@@ -1,0 +1,85 @@
+@import './tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: var(--bg-void);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* Accessible focus ring */
+  *:focus-visible {
+    outline: 2px solid var(--scan);
+    outline-offset: 2px;
+  }
+
+  /* Global selection styling */
+  ::selection {
+    background-color: rgba(34, 211, 238, 0.3);
+    color: var(--ink);
+  }
+
+  /* Thin forensic scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--edge);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--ink-faint);
+  }
+}
+
+@layer utilities {
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Top highlight subtle depth */
+  .surface-depth {
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+  }
+
+  /* Scanline / Radar phosphor glow */
+  .glow-scan {
+    box-shadow: 0 0 15px rgba(34, 211, 238, 0.25);
+  }
+  .glow-verified {
+    box-shadow: 0 0 15px rgba(52, 211, 153, 0.25);
+  }
+  .glow-recovered {
+    box-shadow: 0 0 15px rgba(167, 139, 250, 0.25);
+  }
+  .glow-gap {
+    box-shadow: 0 0 15px rgba(251, 113, 133, 0.25);
+  }
+}
+
+@keyframes shine {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
