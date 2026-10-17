@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { useAppStore } from '@/lib/store';
 import { formatTimeCode } from '@/lib/time';
 import { TimeCode } from '@/components/forensic/TimeCode';
@@ -7,20 +7,43 @@ import {
   Pause,
   SkipBack,
   SkipForward,
+  LayoutGrid,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const PlaybackStrip: React.FC = () => {
-  const { timeCursor, setTimeCursor } = useAppStore();
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [speed, setSpeed] = useState<number>(1);
+  const {
+    timeCursor,
+    setTimeCursor,
+    isPlaying,
+    toggleIsPlaying,
+    playbackSpeed,
+    setPlaybackSpeed,
+    isVideoWallOpen,
+    toggleVideoWall,
+  } = useAppStore();
 
-  // Total duration of demo window: 4 minutes (240 seconds)
-  const maxSeconds = 240;
+  // Total duration of case window: 20 minutes (1200 seconds)
+  const maxSeconds = 1200;
 
-  const togglePlay = () => {
-    setIsPlaying(!isPlaying);
-  };
+  // Real-time playback ticker
+  useEffect(() => {
+    let timer: ReturnType<typeof setInterval> | undefined;
+    if (isPlaying) {
+      const intervalMs = Math.round(1000 / playbackSpeed);
+      timer = setInterval(() => {
+        const cur = useAppStore.getState().timeCursor;
+        if (cur >= maxSeconds) {
+          setTimeCursor(0);
+        } else {
+          setTimeCursor(cur + 1);
+        }
+      }, intervalMs);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [isPlaying, playbackSpeed, setTimeCursor]);
 
   const stepSeconds = (delta: number) => {
     setTimeCursor(Math.max(0, Math.min(maxSeconds, timeCursor + delta)));
@@ -41,7 +64,7 @@ export const PlaybackStrip: React.FC = () => {
 
         <button
           type="button"
-          onClick={togglePlay}
+          onClick={toggleIsPlaying}
           className="w-8 h-8 rounded-full bg-scan text-on-accent flex items-center justify-center hover:bg-scan/90 shadow-[0_0_12px_rgba(34,211,238,0.3)] transition-all"
           title="Play / Pause (Space)"
         >
@@ -62,10 +85,10 @@ export const PlaybackStrip: React.FC = () => {
           {[0.5, 1, 2].map((s) => (
             <button
               key={s}
-              onClick={() => setSpeed(s)}
+              onClick={() => setPlaybackSpeed(s)}
               className={cn(
                 'px-1.5 py-0.5 rounded transition-colors',
-                speed === s
+                playbackSpeed === s
                   ? 'bg-scan text-on-accent font-semibold'
                   : 'text-ink-soft hover:text-ink'
               )}
@@ -74,6 +97,22 @@ export const PlaybackStrip: React.FC = () => {
             </button>
           ))}
         </div>
+
+        {/* Video Wall Toggle Button */}
+        <button
+          type="button"
+          onClick={toggleVideoWall}
+          className={cn(
+            'ml-3 px-2.5 py-1 rounded text-xs font-mono flex items-center gap-1.5 border transition-all',
+            isVideoWallOpen
+              ? 'bg-scan/20 text-scan border-scan/50 font-bold shadow-glow-cyan'
+              : 'bg-void text-ink-soft hover:text-white border-edge'
+          )}
+          title="Toggle Multi-Camera Video Wall"
+        >
+          <LayoutGrid className="w-3.5 h-3.5" />
+          <span>3-Up Wall</span>
+        </button>
       </div>
 
       {/* Center: Synchronized Scrubber Bar */}
@@ -87,10 +126,10 @@ export const PlaybackStrip: React.FC = () => {
           <div className="w-full h-1.5 rounded-full bg-void border border-edge relative overflow-hidden">
             {/* Active footage background */}
             <div className="absolute inset-0 bg-scan/20" />
-            {/* Disconnection gap region (rose) */}
-            <div className="absolute left-[35%] w-[20%] inset-y-0 bg-gap/40 border-l border-r border-gap" />
-            {/* Recovered clip region (violet) */}
-            <div className="absolute left-[50%] w-[15%] inset-y-0 bg-recovered/50" />
+            {/* Disconnection gap region (rose: 2s to 910s = ~75%) */}
+            <div className="absolute left-[0.2%] w-[75%] inset-y-0 bg-gap/40 border-l border-r border-gap" />
+            {/* Recovered clip region (violet: 120s to 180s = 10% to 15%) */}
+            <div className="absolute left-[10%] w-[5%] inset-y-0 bg-recovered/60" />
             {/* Scrubber progress */}
             <div
               className="h-full bg-scan transition-all duration-75"

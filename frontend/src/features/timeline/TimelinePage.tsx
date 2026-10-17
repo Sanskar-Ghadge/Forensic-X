@@ -6,6 +6,9 @@ import { StateBadge } from '@/components/forensic/StateBadge';
 import { HashChip } from '@/components/forensic/HashChip';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { SynchronizedPlayer } from '@/features/playback/SynchronizedPlayer';
+import { RecoverModal } from '@/features/playback/RecoverModal';
+import { GapAnalysisModal } from '@/features/gaps/GapAnalysisModal';
 import {
   Clock,
   Play,
@@ -14,13 +17,14 @@ import {
   Flame,
   ZapOff,
   Crosshair,
+  LayoutGrid,
 } from 'lucide-react';
 
 interface TimelineSegment {
   id: string;
   channel: number;
   cameraName: string;
-  startSec: number; // Seconds from 21:40:00 (base = 0)
+  startSec: number;
   durationSec: number;
   status: 'active' | 'recovered';
   method: 'index' | 'carved';
@@ -45,13 +49,25 @@ const INCIDENT_EPOCH_OFFSET_S = 137; // 21:42:17 is 137s from 21:40:00
 
 export const TimelinePage: React.FC = () => {
   const { caseId } = useParams<{ caseId: string }>();
-  const { currentCaseId, openInspector, timeCursor, setTimeCursor } = useAppStore();
+  const {
+    currentCaseId,
+    openInspector,
+    timeCursor,
+    setTimeCursor,
+    isVideoWallOpen,
+    toggleVideoWall,
+    isPlaying,
+    toggleIsPlaying,
+  } = useAppStore();
   const activeId = caseId || currentCaseId;
 
   // View settings
   const [isCorrectedTime, setIsCorrectedTime] = useState<boolean>(true);
   const [viewMode, setViewMode] = useState<'visual' | 'table'>('visual');
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+
+  // Modals
+  const [isRecoverModalOpen, setIsRecoverModalOpen] = useState<boolean>(false);
+  const [isGapModalOpen, setIsGapModalOpen] = useState<boolean>(false);
 
   // Manual Nudge offset for Cam 2
   const [cam2ManualOffset, setCam2ManualOffset] = useState<number>(4.0);
@@ -70,7 +86,7 @@ export const TimelinePage: React.FC = () => {
         id: 'SEG-001',
         channel: 1,
         cameraName: 'Main Entrance',
-        startSec: 0, // 21:40:00
+        startSec: 0,
         durationSec: 120,
         status: 'active',
         method: 'index',
@@ -93,7 +109,6 @@ export const TimelinePage: React.FC = () => {
         id: 'SEG-003-DRIFT',
         channel: 2,
         cameraName: 'Aisle 4',
-        // In raw time it is at 4s; in corrected time it shifts back by cam2ManualOffset
         startSec: isCorrectedTime ? 4 - cam2ManualOffset : 4,
         durationSec: 120,
         status: 'active',
@@ -117,7 +132,7 @@ export const TimelinePage: React.FC = () => {
         id: 'SEG-005-POST-GAP',
         channel: 3,
         cameraName: 'Cash Counter',
-        startSec: 910, // 21:55:10
+        startSec: 910,
         durationSec: 120,
         status: 'active',
         method: 'index',
@@ -134,8 +149,8 @@ export const TimelinePage: React.FC = () => {
         id: 'GAP-CH3-01',
         channel: 3,
         cameraName: 'Cash Counter',
-        startSec: 2, // 21:40:02
-        durationSec: 908, // 15m 08s
+        startSec: 2,
+        durationSec: 908,
         verdict: 'physical_camera_disconnect',
         confidence: 0.8,
         evidenceFor: [
@@ -163,7 +178,6 @@ export const TimelinePage: React.FC = () => {
     };
   }, [isPlaying, setTimeCursor]);
 
-  // Handle click on canvas
   const handleTimelineClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
@@ -285,12 +299,12 @@ export const TimelinePage: React.FC = () => {
 
       {/* Control Strip & Reference Banner */}
       <div className="p-3 rounded-card bg-console border border-edge flex flex-wrap items-center justify-between gap-4">
-        {/* Playback & Cursor Readout */}
-        <div className="flex items-center gap-3">
+        {/* Playback & Quick Demo Action Buttons */}
+        <div className="flex flex-wrap items-center gap-2.5">
           <Button
             variant="secondary"
             size="sm"
-            onClick={() => setIsPlaying(!isPlaying)}
+            onClick={toggleIsPlaying}
             className="text-xs font-mono border-edge text-scan"
           >
             {isPlaying ? <Pause className="w-3.5 h-3.5 mr-1" /> : <Play className="w-3.5 h-3.5 mr-1" />}
@@ -304,14 +318,41 @@ export const TimelinePage: React.FC = () => {
             className="text-xs border-edge text-ink-soft hover:text-white"
           >
             <Crosshair className="w-3.5 h-3.5 mr-1 text-rose-400" />
-            Jump to Incident (21:42:17)
+            Jump Incident (21:42:17)
           </Button>
 
-          <div className="text-xs font-mono text-ink-soft border-l border-edge pl-3">
-            <span>CURSOR: </span>
-            <span className="text-white font-bold">21:40:{String(timeCursor % 60).padStart(2, '0')}</span>
-            <span className="text-ink-faint ml-1">({timeCursor}s)</span>
-          </div>
+          {/* 3-Up Video Wall Toggle Button */}
+          <Button
+            variant={isVideoWallOpen ? 'primary' : 'secondary'}
+            size="sm"
+            onClick={toggleVideoWall}
+            className="text-xs font-mono"
+          >
+            <LayoutGrid className="w-3.5 h-3.5 mr-1.5" />
+            {isVideoWallOpen ? 'Hide Video Wall' : '3-Up Video Wall'}
+          </Button>
+
+          {/* Carve Missing Clip Quick Trigger */}
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setIsRecoverModalOpen(true)}
+            className="text-xs font-mono border-recovered/50 text-recovered hover:bg-recovered/10"
+          >
+            <Flame className="w-3.5 h-3.5 mr-1.5 text-recovered animate-pulse" />
+            Recover Deleted Clip
+          </Button>
+
+          {/* Gap Causal Diagnosis Quick Trigger */}
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setIsGapModalOpen(true)}
+            className="text-xs font-mono border-gap/50 text-gap hover:bg-gap/10"
+          >
+            <ZapOff className="w-3.5 h-3.5 mr-1.5 text-gap" />
+            Diagnose Gap (CH3)
+          </Button>
         </div>
 
         {/* Nudge Cam 2 Offset Control */}
@@ -372,6 +413,11 @@ export const TimelinePage: React.FC = () => {
           </label>
         </div>
       </div>
+
+      {/* Synchronized 3-Camera Video Wall (Toggled) */}
+      {isVideoWallOpen && (
+        <SynchronizedPlayer onClose={() => toggleVideoWall()} />
+      )}
 
       {viewMode === 'visual' ? (
         /* VISUAL LANES TIMELINE */
@@ -503,13 +549,14 @@ export const TimelinePage: React.FC = () => {
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSelectSegment(segments[1]);
+                        setIsRecoverModalOpen(true);
                       }}
                       className="absolute top-3.5 h-9 rounded bg-recovered/30 border border-recovered hover:border-white transition-all cursor-pointer flex items-center px-2 text-xs font-mono text-recovered font-bold shadow-glow-purple z-10"
                       style={{
                         left: `${(segments[1].startSec / TOTAL_TIMELINE_SPAN_S) * 100}%`,
                         width: `${(segments[1].durationSec / TOTAL_TIMELINE_SPAN_S) * 100}%`,
                       }}
-                      title="Carved Deleted Clip (60s) restored from unallocated disk space"
+                      title="Click to view recovery details / Carve sequence"
                     >
                       <Flame className="w-3.5 h-3.5 mr-1.5 text-recovered shrink-0 animate-pulse" />
                       <span className="truncate">Carved Deleted Clip (60s)</span>
@@ -594,13 +641,14 @@ export const TimelinePage: React.FC = () => {
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSelectGap(gaps[0]);
+                        setIsGapModalOpen(true);
                       }}
                       className="absolute top-2.5 h-11 rounded border-2 border-dashed border-gap bg-gap/20 hover:bg-gap/30 transition-all cursor-pointer flex items-center px-3 text-xs font-mono text-gap font-bold shadow-glow-rose"
                       style={{
                         left: `${(gaps[0].startSec / TOTAL_TIMELINE_SPAN_S) * 100}%`,
                         width: `${(gaps[0].durationSec / TOTAL_TIMELINE_SPAN_S) * 100}%`,
                       }}
-                      title="Hardware Signal Loss Gap (21:40:02 to 21:55:10) — 80% confidence"
+                      title="Click for deep causal gap analysis and investigator notes"
                     >
                       <ZapOff className="w-4 h-4 mr-2 text-gap shrink-0 animate-pulse" />
                       <span className="truncate">
@@ -708,6 +756,20 @@ export const TimelinePage: React.FC = () => {
           Incident: <span className="text-rose-400 font-bold">2026-10-17 21:42:17 UTC</span>
         </div>
       </div>
+
+      {/* Recover Modal */}
+      <RecoverModal
+        isOpen={isRecoverModalOpen}
+        onClose={() => setIsRecoverModalOpen(false)}
+        segmentId="SEG-002-DEL"
+      />
+
+      {/* Gap Analysis Modal */}
+      <GapAnalysisModal
+        isOpen={isGapModalOpen}
+        onClose={() => setIsGapModalOpen(false)}
+        gapId="GAP-CH3-01"
+      />
     </div>
   );
 };
