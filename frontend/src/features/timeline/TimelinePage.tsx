@@ -19,6 +19,7 @@ import {
   Crosshair,
   LayoutGrid,
 } from 'lucide-react';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 
 interface TimelineSegment {
   id: string;
@@ -60,6 +61,7 @@ export const TimelinePage: React.FC = () => {
     toggleIsPlaying,
   } = useAppStore();
   const activeId = caseId || currentCaseId;
+  useDocumentTitle(`Synchronized Timeline — ${activeId}`);
 
   // View settings
   const [isCorrectedTime, setIsCorrectedTime] = useState<boolean>(true);

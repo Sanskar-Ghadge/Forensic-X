@@ -149,7 +149,15 @@ export const CommandPalette: React.FC = () => {
                 className="flex items-center gap-2.5 px-3 py-2 rounded-control text-ink hover:bg-raised hover:text-scan cursor-pointer transition-colors"
               >
                 <Zap className="w-4 h-4 text-scan shrink-0" />
-                <span>Toggle 5-Minute Guided Presenter Tour</span>
+                <span>Toggle 5-Minute Guided Presenter Tour (D)</span>
+              </Command.Item>
+
+              <Command.Item
+                onSelect={() => runCommand(useAppStore.getState().resetDemoState)}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-control text-ink hover:bg-raised hover:text-alert cursor-pointer transition-colors"
+              >
+                <Fingerprint className="w-4 h-4 text-alert shrink-0" />
+                <span>Reset Demo State (Clean Rehearsal) (R)</span>
               </Command.Item>
 
               <Command.Item

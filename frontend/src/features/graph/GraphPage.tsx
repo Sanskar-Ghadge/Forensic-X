@@ -316,9 +316,12 @@ const nodeTypes = {
   hash: HashNode,
 };
 
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+
 export const GraphPage: React.FC = () => {
   const { caseId } = useParams<{ caseId: string }>();
   const activeCase = caseId || 'CASE-2026-APEX-01';
+  useDocumentTitle(`Evidence Lineage Graph — ${activeCase}`);
 
   const [nodes, setNodes, onNodesChange] = useNodesState<Node<any>>(INITIAL_NODES);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(INITIAL_EDGES);

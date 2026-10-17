@@ -67,6 +67,11 @@
   .glow-gap {
     box-shadow: 0 0 15px rgba(251, 113, 133, 0.25);
   }
+
+  /* Projector Presentation Mode (F9.1) */
+  .projector-mode {
+    font-size: 112%;
+  }
 }
 
 @keyframes shine {

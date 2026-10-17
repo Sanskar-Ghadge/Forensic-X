@@ -77,14 +77,16 @@ Forensic - X/
 ```powershell
 cd frontend
 npm install
-npm run dev
+npm test          # Run Vitest forensic tests
+npm run dev       # Start dev server on http://127.0.0.1:5173
 ```
-Open **`http://127.0.0.1:5173/design`** to explore the **Living Style Guide**, featuring:
-* The Evidence Room dark palette and WCAG-compliant contrast tokens.
-* Non-color cue StateBadges (*Verified, Recovered, Partial, Estimated, Gap, Lead, Undetermined*).
-* Interactive `HashChip` with one-click SHA-256 copy.
-* `TimeCode` with uncertainty margins ($\pm 4s$).
-* Dynamic motion switcher (`Full`, `Reduced`, `Off`) with automatic fallback to zero-cost static rendering.
+Open **`http://127.0.0.1:5173`** to use the platform, or press **`D`** to activate the **Guided Demo Tour**.
+
+### 🐳 Docker Compose Deployment
+```powershell
+docker compose up --build
+```
+Spins up both the FastAPI backend (`http://localhost:8000`) and the optimized Nginx frontend (`http://localhost:5173`).
 
 ---
 

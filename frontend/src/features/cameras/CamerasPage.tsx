@@ -91,11 +91,14 @@ const CAMERAS_DATA: CameraFeedData[] = [
   },
 ];
 
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+
 export const CamerasPage: React.FC = () => {
   const { caseId } = useParams<{ caseId: string }>();
   const navigate = useNavigate();
   const { currentCaseId, openInspector } = useAppStore();
   const activeId = caseId || currentCaseId;
+  useDocumentTitle(`Camera Matrix — ${activeId}`);
 
   const [filter, setFilter] = useState<'all' | 'ok' | 'drift' | 'gap'>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');

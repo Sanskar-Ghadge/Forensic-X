@@ -9,6 +9,7 @@ import { CameraBadge } from '@/components/forensic/CameraBadge';
 import { HashChip } from '@/components/forensic/HashChip';
 import { SpotlightCard } from '@/components/fx/SpotlightCard';
 import { CountUp } from '@/components/fx/CountUp';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import {
   Clock,
   Video,
@@ -28,6 +29,7 @@ export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const { currentCaseId, openInspector } = useAppStore();
   const activeId = caseId || currentCaseId;
+  useDocumentTitle(`Case Overview — ${activeId}`);
 
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyNotice, setVerifyNotice] = useState<string | null>(null);

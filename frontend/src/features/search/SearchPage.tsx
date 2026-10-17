@@ -95,9 +95,12 @@ const INITIAL_DEMO_LEADS: SearchLead[] = [
   },
 ];
 
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+
 export const SearchPage: React.FC = () => {
   const { caseId } = useParams<{ caseId: string }>();
   const activeCase = caseId || 'CASE-2026-APEX-01';
+  useDocumentTitle(`Entity Search & Trajectory — ${activeCase}`);
 
   const {
     setTimeCursor,

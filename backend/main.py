@@ -6,7 +6,7 @@ FastAPI application providing evidentiary endpoints, case repository, and timeli
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.database import engine, Base
-from backend.routers import cases, timeline, upload, analyze, gaps, evidence, metrics, search
+from backend.routers import cases, timeline, upload, analyze, gaps, evidence, metrics, search, report
 
 # Initialize SQLite tables
 Base.metadata.create_all(bind=engine)
@@ -35,6 +35,7 @@ app.include_router(gaps.router)
 app.include_router(evidence.router)
 app.include_router(metrics.router)
 app.include_router(search.router)
+app.include_router(report.router)
 
 
 @app.get("/")
