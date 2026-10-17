@@ -10,28 +10,13 @@ import { CamerasPage } from '@/features/cameras/CamerasPage';
 import { TimelinePage } from '@/features/timeline/TimelinePage';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import { SearchPage } from '@/features/search/SearchPage';
 import {
-  ScanSearch,
   GitBranch,
   FileText,
 } from 'lucide-react';
 
 /* --- Temporary Placeholder Screens for Subsequent Phases --- */
-
-const SearchViewPlaceholder: React.FC = () => (
-  <div className="p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
-    <div className="flex items-center justify-between">
-      <h1 className="font-display text-2xl font-bold text-white flex items-center gap-2">
-        <ScanSearch className="w-5 h-5 text-scan" />
-        <span>Cross-Camera Visual & Text Search</span>
-      </h1>
-      <Badge variant="scan">Phase F5 Query Composer</Badge>
-    </div>
-    <Card surface="console" className="p-12 text-center text-ink-soft">
-      Search composer, ChromaGrid results, and PathView trajectory.
-    </Card>
-  </div>
-);
 
 const GraphViewPlaceholder: React.FC = () => (
   <div className="p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
@@ -98,7 +83,7 @@ export const router = createBrowserRouter([
       },
       {
         path: ':caseId/search',
-        element: <SearchViewPlaceholder />,
+        element: <SearchPage />,
       },
       {
         path: ':caseId/graph',
