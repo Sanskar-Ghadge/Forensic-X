@@ -6,48 +6,17 @@ import { Shell } from '@/components/layout/Shell';
 import { CaseListPage } from '@/features/cases/CaseListPage';
 import { IntakeWizardPage } from '@/features/cases/IntakeWizardPage';
 import { DashboardPage } from '@/features/dashboard/DashboardPage';
+import { CamerasPage } from '@/features/cameras/CamerasPage';
+import { TimelinePage } from '@/features/timeline/TimelinePage';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import {
-  Clock,
-  Video,
   ScanSearch,
   GitBranch,
   FileText,
 } from 'lucide-react';
 
 /* --- Temporary Placeholder Screens for Subsequent Phases --- */
-
-const TimelineViewPlaceholder: React.FC = () => (
-  <div className="p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
-    <div className="flex items-center justify-between">
-      <h1 className="font-display text-2xl font-bold text-white flex items-center gap-2">
-        <Clock className="w-5 h-5 text-scan" />
-        <span>Multi-Camera Synchronized Timeline</span>
-      </h1>
-      <Badge variant="scan">Phase F3 Canvas</Badge>
-    </div>
-    <Card surface="console" className="p-12 text-center text-ink-soft">
-      Timeline canvas with custom d3-scale / d3-zoom and Raw vs Corrected alignment switch.
-      PlaybackStrip is active below.
-    </Card>
-  </div>
-);
-
-const CamerasViewPlaceholder: React.FC = () => (
-  <div className="p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
-    <div className="flex items-center justify-between">
-      <h1 className="font-display text-2xl font-bold text-white flex items-center gap-2">
-        <Video className="w-5 h-5 text-scan" />
-        <span>Camera Feeds</span>
-      </h1>
-      <Badge variant="scan">Phase F3 Tile Grid</Badge>
-    </div>
-    <Card surface="console" className="p-12 text-center text-ink-soft">
-      Camera grid with SpotlightCard tiles and TargetCursor lock.
-    </Card>
-  </div>
-);
 
 const SearchViewPlaceholder: React.FC = () => (
   <div className="p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
@@ -121,11 +90,11 @@ export const router = createBrowserRouter([
       },
       {
         path: ':caseId/timeline',
-        element: <TimelineViewPlaceholder />,
+        element: <TimelinePage />,
       },
       {
         path: ':caseId/cameras',
-        element: <CamerasViewPlaceholder />,
+        element: <CamerasPage />,
       },
       {
         path: ':caseId/search',
