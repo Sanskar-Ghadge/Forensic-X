@@ -75,3 +75,255 @@ def verify_item(case_id: str, item_id: str, db: Session = Depends(get_db)):
         }
 
     raise HTTPException(status_code=404, detail="Evidence item not found")
+
+
+@router.get("/graph")
+def get_evidence_graph(case_id: str, db: Session = Depends(get_db)):
+    """
+    Returns the complete evidentiary provenance graph (nodes and edges)
+    linking Incident -> Recorder -> Cameras -> Segments/Gaps -> Hashes.
+    """
+    nodes = [
+        {
+            "id": "node-incident",
+            "type": "incident",
+            "position": {"x": 50, "y": 250},
+            "data": {
+                "label": "Retail Store Incident",
+                "caseId": case_id,
+                "timeRange": "21:40:00 - 22:00:00 UTC",
+                "jurisdiction": "CCTV Evidence Intake",
+            },
+        },
+        {
+            "id": "node-recorder",
+            "type": "recorder",
+            "position": {"x": 350, "y": 250},
+            "data": {
+                "label": "Physical DVR Raw Bitstream",
+                "brand": "MOCK-DVR (Hikvision Profile)",
+                "imageHash": "618ed08956f023966c63dd2416f7d8b2aa8f071dfa4835305f57d608215720d0",
+                "sectors": 300000,
+                "sizeBytes": 153600000,
+            },
+        },
+        {
+            "id": "node-cam-01",
+            "type": "camera",
+            "position": {"x": 680, "y": 80},
+            "data": {
+                "label": "CAM 01: Entrance",
+                "channel": 1,
+                "offsetSec": 0.0,
+                "status": "ok",
+            },
+        },
+        {
+            "id": "node-cam-02",
+            "type": "camera",
+            "position": {"x": 680, "y": 250},
+            "data": {
+                "label": "CAM 02: Aisle 4 (Beverages)",
+                "channel": 2,
+                "offsetSec": 4.0,
+                "status": "recovered",
+            },
+        },
+        {
+            "id": "node-cam-03",
+            "type": "camera",
+            "position": {"x": 680, "y": 420},
+            "data": {
+                "label": "CAM 03: Cash Counter",
+                "channel": 3,
+                "offsetSec": 0.0,
+                "status": "gaps",
+            },
+        },
+        {
+            "id": "node-seg-001",
+            "type": "segment",
+            "position": {"x": 1000, "y": 40},
+            "data": {
+                "label": "Clip SEG-001 (Active)",
+                "channel": 1,
+                "cameraName": "Entrance",
+                "status": "verified",
+                "timeStart": "21:40:00",
+                "duration": "300s",
+                "hash": "3b7a1e0f8c9d2a4e6b5c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a",
+            },
+        },
+        {
+            "id": "node-seg-002-del",
+            "type": "segment",
+            "position": {"x": 1000, "y": 200},
+            "data": {
+                "label": "Carved Clip SEG-002-DEL",
+                "channel": 2,
+                "cameraName": "Aisle 4",
+                "status": "recovered",
+                "method": "deep_sector_carve",
+                "sector": 254464,
+                "timeStart": "21:45:00",
+                "duration": "180s",
+                "hash": "0b2b68603632cf4b64fcad18a6dfc9247d8ff60f04c6e9a7e6b0253457b3f25c",
+            },
+        },
+        {
+            "id": "node-gap-ch3",
+            "type": "gap",
+            "position": {"x": 1000, "y": 360},
+            "data": {
+                "label": "Hardware Signal Loss (908s)",
+                "channel": 3,
+                "cameraName": "Cash Counter",
+                "verdict": "camera_disconnected",
+                "confidence": 0.80,
+                "timeStart": "21:40:02",
+                "timeEnd": "21:55:10",
+            },
+        },
+        {
+            "id": "node-seg-003",
+            "type": "segment",
+            "position": {"x": 1000, "y": 490},
+            "data": {
+                "label": "Clip SEG-003 (Active)",
+                "channel": 3,
+                "cameraName": "Cash Counter",
+                "status": "verified",
+                "timeStart": "21:55:10",
+                "duration": "290s",
+                "hash": "9f8e7d6c5b4a3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b",
+            },
+        },
+        {
+            "id": "node-lead-001",
+            "type": "lead",
+            "position": {"x": 1340, "y": 40},
+            "data": {
+                "label": "AI Lead: Person in Red Jacket",
+                "similarity": 0.92,
+                "model": "CLIP ViT-B/32 + OSNet",
+                "timestamp": "21:42:15 UTC",
+            },
+        },
+        {
+            "id": "node-lead-002",
+            "type": "lead",
+            "position": {"x": 1340, "y": 200},
+            "data": {
+                "label": "AI Lead: Person with Red Backpack",
+                "similarity": 0.88,
+                "model": "CLIP ViT-B/32 + OSNet",
+                "timestamp": "21:46:18 UTC",
+            },
+        },
+        {
+            "id": "node-hash-master",
+            "type": "hash",
+            "position": {"x": 350, "y": 450},
+            "data": {
+                "label": "Master SHA-256",
+                "hash": "618ed08956f023966c63dd2416f7d8b2aa8f071dfa4835305f57d608215720d0",
+                "algorithm": "SHA-256",
+                "verified": True,
+            },
+        },
+        {
+            "id": "node-hash-carved",
+            "type": "hash",
+            "position": {"x": 1340, "y": 360},
+            "data": {
+                "label": "Carved Bitstream SHA-256",
+                "hash": "0b2b68603632cf4b64fcad18a6dfc9247d8ff60f04c6e9a7e6b0253457b3f25c",
+                "algorithm": "SHA-256",
+                "verified": True,
+            },
+        },
+    ]
+
+    edges = [
+        {
+            "id": "e-inc-rec",
+            "source": "node-incident",
+            "target": "node-recorder",
+            "label": "investigates",
+        },
+        {
+            "id": "e-rec-hash",
+            "source": "node-recorder",
+            "target": "node-hash-master",
+            "label": "sealed with",
+        },
+        {
+            "id": "e-rec-cam1",
+            "source": "node-recorder",
+            "target": "node-cam-01",
+            "label": "recorded by",
+        },
+        {
+            "id": "e-rec-cam2",
+            "source": "node-recorder",
+            "target": "node-cam-02",
+            "label": "recorded by",
+        },
+        {
+            "id": "e-rec-cam3",
+            "source": "node-recorder",
+            "target": "node-cam-03",
+            "label": "recorded by",
+        },
+        {
+            "id": "e-cam1-seg1",
+            "source": "node-cam-01",
+            "target": "node-seg-001",
+            "label": "contains",
+        },
+        {
+            "id": "e-cam2-seg2",
+            "source": "node-cam-02",
+            "target": "node-seg-002-del",
+            "label": "carved from",
+        },
+        {
+            "id": "e-cam3-gap",
+            "source": "node-cam-03",
+            "target": "node-gap-ch3",
+            "label": "interrupted by",
+        },
+        {
+            "id": "e-cam3-seg3",
+            "source": "node-cam-03",
+            "target": "node-seg-003",
+            "label": "resumed with",
+        },
+        {
+            "id": "e-seg1-lead1",
+            "source": "node-seg-001",
+            "target": "node-lead-001",
+            "label": "observed lead",
+        },
+        {
+            "id": "e-seg2-lead2",
+            "source": "node-seg-002-del",
+            "target": "node-lead-002",
+            "label": "observed lead",
+        },
+        {
+            "id": "e-seg2-hash",
+            "source": "node-seg-002-del",
+            "target": "node-hash-carved",
+            "label": "verified with",
+        },
+    ]
+
+    return {
+        "case_id": case_id,
+        "nodes": nodes,
+        "edges": edges,
+        "total_nodes": len(nodes),
+        "total_edges": len(edges),
+    }
+
