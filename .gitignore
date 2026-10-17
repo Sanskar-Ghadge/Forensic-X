@@ -1,5 +1,6 @@
 # Large datasets and disk images
 data/
+extracted_evidence/
 sample_data/*.img
 sample_data/clips/*.mp4
 sample_data/clips/*.avi
