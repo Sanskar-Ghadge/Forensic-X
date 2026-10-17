@@ -1,0 +1,135 @@
+{
+  "case_id": "CASE-2026-APEX-01",
+  "case_name": "Retail Store Incident \u2014 2026-10-17",
+  "incident_time": "2026-10-17T21:42:17Z",
+  "recorders": [
+    {
+      "id": "REC-01",
+      "brand": "MOCKDVR1",
+      "filename": "mock_dvr.img",
+      "filesize_bytes": 885248,
+      "sha256": "618ed08956f023966c63dd2416f7d8b2aa8f071dfa4835305f57d608215720d0",
+      "total_channels": 3
+    }
+  ],
+  "cameras": [
+    {
+      "channel": 1,
+      "location": "Main Entrance",
+      "true_clock_offset_s": 0.0,
+      "status": "ok"
+    },
+    {
+      "channel": 2,
+      "location": "Aisle 4",
+      "true_clock_offset_s": 4.0,
+      "status": "offset_uncertain"
+    },
+    {
+      "channel": 3,
+      "location": "Cash Counter",
+      "true_clock_offset_s": 0.0,
+      "status": "gaps"
+    }
+  ],
+  "segments": [
+    {
+      "id": "SEG-001",
+      "channel": 1,
+      "location": "Main Entrance",
+      "start_timestamp": 1792273200,
+      "start_iso": "2026-10-17T21:40:00+00:00",
+      "duration_s": 120,
+      "disk_offset": 4096,
+      "length_bytes": 250000,
+      "sha256": "e18f6301aec7b13595aa1fa6dd2637a7553a94f4b1b81c2bc272432734c29ccf",
+      "status": "active",
+      "is_indexed": true,
+      "clock_offset_s": 0
+    },
+    {
+      "id": "SEG-002-DEL",
+      "channel": 1,
+      "location": "Main Entrance",
+      "start_timestamp": 1792273320,
+      "start_iso": "2026-10-17T21:42:00+00:00",
+      "duration_s": 60,
+      "disk_offset": 254464,
+      "length_bytes": 180000,
+      "sha256": "0b2b68602866eb8a8300d8f31a01d70c71f1cd4770c86ae3f253eab617b3f25c",
+      "status": "recovered",
+      "is_indexed": false,
+      "clock_offset_s": 0
+    },
+    {
+      "id": "SEG-003-DRIFT",
+      "channel": 2,
+      "location": "Aisle 4",
+      "start_timestamp": 1792273204,
+      "start_iso": "2026-10-17T21:40:04+00:00",
+      "duration_s": 120,
+      "disk_offset": 434688,
+      "length_bytes": 200000,
+      "sha256": "ffd6c9a60c3b028576e85d40afe7decf76633971b53266acadfc5759fa093810",
+      "status": "active",
+      "is_indexed": true,
+      "clock_offset_s": 4
+    },
+    {
+      "id": "SEG-004-PRE-GAP",
+      "channel": 3,
+      "location": "Cash Counter",
+      "start_timestamp": 1792273200,
+      "start_iso": "2026-10-17T21:40:00+00:00",
+      "duration_s": 2,
+      "disk_offset": 634880,
+      "length_bytes": 30000,
+      "sha256": "ec091024bd561f3ab606ca917b0f109227c20151728ab49bd045eed35e1d020f",
+      "status": "active",
+      "is_indexed": true,
+      "clock_offset_s": 0
+    },
+    {
+      "id": "SEG-005-POST-GAP",
+      "channel": 3,
+      "location": "Cash Counter",
+      "start_timestamp": 1792274110,
+      "start_iso": "2026-10-17T21:55:10+00:00",
+      "duration_s": 120,
+      "disk_offset": 665088,
+      "length_bytes": 220000,
+      "sha256": "d9753683ca9bbf07f4a5b17d1fe881fcbc645758163da358abcee67bca133f57",
+      "status": "active",
+      "is_indexed": true,
+      "clock_offset_s": 0
+    }
+  ],
+  "gaps": [
+    {
+      "channel": 3,
+      "location": "Cash Counter",
+      "start_time": "2026-10-17T21:40:02Z",
+      "end_time": "2026-10-17T21:55:10Z",
+      "duration_s": 908,
+      "true_cause": "disconnected",
+      "expected_confidence": 0.8,
+      "supporting_evidence": [
+        "2026-10-17 21:40:02 [WARN] CH3 Video Loss detected",
+        "2026-10-17 21:55:10 [INFO] CH3 Video Signal Restored",
+        "No residual video frames carved in gap disk sectors"
+      ],
+      "contradicting_evidence": [
+        "No format or manual deletion logs found"
+      ]
+    }
+  ],
+  "expected_metrics": {
+    "recovery_success_rate": {
+      "carved_recovered": 1,
+      "known_deleted": 1,
+      "percentage": 100.0
+    },
+    "average_alignment_error_s": 0.0,
+    "hash_verification_success_rate": 100.0
+  }
+}
